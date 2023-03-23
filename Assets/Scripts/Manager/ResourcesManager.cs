@@ -144,6 +144,10 @@ namespace WordPuzzle.Manager
             return frequentlyObjectPrefab;
         }
 
+        public T GetObjectPrefab<T>() where T : BaseObject
+        {
+            return GetObjectPrefab<T>("");
+        }
         public T GetObjectPrefab<T>(string variantKey) where T : BaseObject
         {
             T objPrefab = Resources.LoadAll<T>("").FirstOrDefault(o => o is T && o.VariantKey == variantKey);

@@ -1,10 +1,13 @@
 namespace WordPuzzle.Game
 {
+    using DG.Tweening;
+    using System;
     using TMPro;
     using UnityEngine;
+    using WordPuzzle.Command;
 
     [RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
-    public class Tile : BaseObject
+    public class Tile : BaseObject, ICommandMovement
     {
         [SerializeField] private TextMeshPro _txt;
         private SpriteRenderer _renderer;
@@ -19,6 +22,9 @@ namespace WordPuzzle.Game
         public event OnPointerDown PointerDown;
         public delegate void OnPointerUp(Tile tile);
         public event OnPointerUp PointerUp;
+
+        public event Action<Tile> Moved;
+        public event Action<Tile> MoveBacked;
 
         protected override void Awake()
         {
@@ -41,9 +47,9 @@ namespace WordPuzzle.Game
 
             _renderer.sortingOrder = SortingOrder;
             _txt.sortingOrder = SortingOrder;
-            
+
             _txt.text = Character;
-            
+
             transform.position = DefaultPosition;
         }
 
@@ -59,6 +65,20 @@ namespace WordPuzzle.Game
             if (!CanUse)
                 return;
             PointerUp?.Invoke(this);
+        }
+
+        public void Move(Vector2 target)
+        {
+            transform.DOKill();
+            transform.DOMove(target, 1f);
+            Moved?.Invoke(this);
+        }
+
+        public void MoveBack()
+        {
+            transform.DOKill();
+            transform.DOMove(DefaultPosition, 1f);
+            MoveBacked?.Invoke(this);
         }
     }
 }
