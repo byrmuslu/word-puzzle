@@ -1,30 +1,31 @@
 namespace WordPuzzle.Game
 {
-    using DG.Tweening;
     using System;
     using TMPro;
     using UnityEngine;
     using WordPuzzle.Command;
 
     [RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
-    public class Tile : BaseObject, ICommandMovement
+    public class Tile : BaseObject, ICommand
     {
         [SerializeField] private TextMeshPro _txt;
         private SpriteRenderer _renderer;
         private Collider2D _collider;
-        public int ID { get; set; }
-        public int SortingOrder { get; set; }
-        public Vector2 DefaultPosition { get; set; }
-        public string Character { get; set; }
-        public bool CanUse { get; set; }
+        public int ID { get; private set; }
+        public int SortingOrder { get; private set; }
+        public Vector2 DefaultPosition { get; private set; }
+        public string Character { get; private set; }
+        public bool CanUse { get; private set; }
 
-        public delegate void OnPointerDown(Tile tile);
-        public event OnPointerDown PointerDown;
-        public delegate void OnPointerUp(Tile tile);
-        public event OnPointerUp PointerUp;
+        public delegate void OnSelect(Tile tile);
+        public event OnSelect Selected;
 
-        public event Action<Tile> Moved;
-        public event Action<Tile> MoveBacked;
+        public event Action<Tile> Executed;
+        public event Action<Tile> Withdrawn;
+
+        public Vector2 Target { get; set; }
+
+        public bool IsMoving { get; private set; }
 
         protected override void Awake()
         {
@@ -33,52 +34,57 @@ namespace WordPuzzle.Game
             base.Awake();
         }
 
-        protected override void Start()
+        public void SetID(int id)
         {
-            InitTile();
-            base.Start();
+            ID = id;
         }
 
-        private void InitTile()
+        public void SetCharacter(string character)
         {
-            _renderer.color = CanUse ? Color.white : Color.grey;
+            Character = character;
+            _txt.text = character;
+        }
 
-            _collider.enabled = CanUse;
+        public void SetSortingOrder(int sortingOrder) 
+        {
+            SortingOrder = sortingOrder;
+            _renderer.sortingOrder = sortingOrder;
+            _txt.sortingOrder = sortingOrder;
+        }
 
-            _renderer.sortingOrder = SortingOrder;
-            _txt.sortingOrder = SortingOrder;
+        public void SetDefaultPosition(Vector2 position)
+        {
+            DefaultPosition = position;
+            transform.position = position;
+        }
 
-            _txt.text = Character;
-
-            transform.position = DefaultPosition;
+        public void SetCanUse(bool canUse)
+        {
+            CanUse = canUse;
+            _renderer.color = canUse ? Color.white : Color.grey;
+            _collider.enabled = canUse;
         }
 
         private void OnMouseDown()
         {
             if (!CanUse)
                 return;
-            PointerDown?.Invoke(this);
+            Select();
         }
 
-        private void OnMouseUp()
+        public void Select()
         {
-            if (!CanUse)
-                return;
-            PointerUp?.Invoke(this);
+            Selected?.Invoke(this);
         }
 
-        public void Move(Vector2 target)
+        public void Execute()
         {
-            transform.DOKill();
-            transform.DOMove(target, 1f);
-            Moved?.Invoke(this);
+            Executed?.Invoke(this);
         }
 
-        public void MoveBack()
+        public void Undo()
         {
-            transform.DOKill();
-            transform.DOMove(DefaultPosition, 1f);
-            MoveBacked?.Invoke(this);
+            Withdrawn?.Invoke(this);
         }
     }
 }

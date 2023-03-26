@@ -58,6 +58,11 @@ namespace WordPuzzle
             DeActivated?.Invoke(this);
         }
 
+        public virtual void Destroy()
+        {
+            Destroy(gameObject);
+        }
+
         public void SetParent(Transform parent)
         {
             transform.SetParent(parent);
