@@ -12,3 +12,5 @@ NOT : Görsel öğeler standart unity öğelerinden oluşmaktadır.<br>
 Resources klasörü içerisinden kolaylıkla değiştirilebilir formattadır.
 
 NOT : Genel programlama yapısı ile ilgili sorularınız olursa iletişime geçebilirsiniz.
+
+NOT : Builds->WordPuzzle.apk buradan indirebilirsiniz.
